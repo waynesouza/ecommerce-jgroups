@@ -14,6 +14,7 @@ import org.jgroups.blocks.ResponseMode;
 import org.jgroups.util.Rsp;
 import org.jgroups.util.RspList;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -57,10 +58,10 @@ public class View {
             op.nextLine();
             switch (op.toString()) {
                 case "1":
-                    // TODO loginConsumer
+                    loginConsumer();
                     break;
                 case "2":
-                    // TODO loginSeller
+                    loginSeller();
                     break;
                 case "3":
                     // TODO mainMenu()
@@ -70,6 +71,60 @@ public class View {
                     break;
             }
         }
+    }
+
+    private void loginConsumer() {
+        Scanner op = new Scanner(System.in);
+        while (!op.toString().equals("3")) {
+            System.out.println("----- ACESSAR CONTA - CONSUMIDOR -----\n");
+            System.out.print("Informe o CPF: ");
+            String cpf = op.nextLine();
+            System.out.print("Informe a senha: ");
+            String password = op.nextLine();
+
+            ArrayList<Object> content = new ArrayList<>();
+            content.add(cpf);
+            content.add(password);
+
+            Comunication comunication = new Comunication(EnumChannel.VIEW_CONTROL, EnumService.LOGIN_CONSUMER, content);
+            comunication = sendMessage(comunication);
+            comunication.content.stream().findFirst();
+            // TODO comunication.content.get(0)
+        }
+    }
+
+    private void loginSeller() {
+        Scanner op = new Scanner(System.in);
+        while (!op.toString().equals("3")) {
+            System.out.println("----- ACESSAR CONTA - VENDEDOR -----\n");
+            System.out.print("Informe o CPF: ");
+            String cpf = op.nextLine();
+            System.out.print("Informe a senha: ");
+            String password = op.nextLine();
+
+            ArrayList<Object> content = new ArrayList<>();
+            content.add(cpf);
+            content.add(password);
+
+            Comunication comunication = new Comunication(EnumChannel.VIEW_CONTROL, EnumService.LOGIN_CONSUMER, content);
+            // TODO sendMessage(comunication)
+            // TODO comunication.content.get(0)
+        }
+    }
+
+    private Comunication sendMessage(Comunication comunication) {
+        Vector<Address> cluster = address;
+        RequestOptions options = new RequestOptions();
+        options.setMode(ResponseMode.GET_FIRST);
+        options.setAnycasting(true);
+        Message message = new Message(null, comunication);
+        RspList<Comunication> responseComunication = null;
+        try {
+            responseComunication = dispatcher.castMessage(cluster, message, options);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return responseComunication.getFirst();
     }
 
 }
